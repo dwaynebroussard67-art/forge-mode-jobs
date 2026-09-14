@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forge Mode — Sales Application</title>
+<style>
+  :root{
+    --ink:#1a1d1f;
+    --paper:#f6f4ef;
+    --steel:#2c3a4a;
+    --ember:#c1502e;
+    --line:#d8d3c7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:560px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+  }
+  header{
+    margin-bottom:32px;
+  }
+  .mark{
+    font-size:13px;
+    letter-spacing:.06em;
+    color:var(--steel);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  h1{
+    font-size:28px;
+    line-height:1.2;
+    margin:0 0 10px;
+    color:var(--ink);
+  }
+  .sub{
+    color:#5b5f62;
+    font-size:15px;
+    max-width:46ch;
+  }
+  form{
+    margin-top:32px;
+  }
+  .field{
+    margin-bottom:20px;
+  }
+  label{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:var(--ink);
+  }
+  .hint{
+    font-size:12.5px;
+    color:#7a7d80;
+    margin-bottom:6px;
+  }
+  input, textarea, select{
+    width:100%;
+    padding:12px 14px;
+    font-size:16px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:var(--steel);
+    box-shadow:0 0 0 3px rgba(44,58,74,0.12);
+  }
+  textarea{
+    resize:vertical;
+    min-height:100px;
+  }
+  fieldset{
+    border:none;
+    padding:0;
+    margin:0;
+  }
+  .radio-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .radio-row label{
+    font-weight:400;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid var(--line);
+    padding:9px 14px;
+    border-radius:20px;
+    background:#fff;
+    cursor:pointer;
+    font-size:14px;
+  }
+  .radio-row input{
+    width:auto;
+    accent-color:var(--steel);
+  }
+  button{
+    width:100%;
+    padding:15px;
+    font-size:16px;
+    font-weight:600;
+    background:var(--ember);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    margin-top:12px;
+  }
+  button:active{
+    opacity:.9;
+  }
+  .foot{
+    text-align:center;
+    font-size:12.5px;
+    color:#9a9d9f;
+    margin-top:20px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="mark">FORGE MODE</div>
+    <h1>Sales Representative Application</h1>
+    <p class="sub">No experience required. We train you on our system, our way. Fill this out — takes about 2 minutes.</p>
+  </header>
+
+  <form action="https://formsubmit.co/forgemodeincorporated@gmail.com" method="POST">
+
+    <!-- FormSubmit config -->
+    <input type="hidden" name="_subject" value="New Sales Application — Forge Mode">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://YOUR-THANKYOU-PAGE-OR-SITE.com/thanks">
+
+    <div class="field">
+      <label for="name">Full name</label>
+      <input type="text" id="name" name="Full Name" required>
+    </div>
+
+    <div class="field">
+      <label for="email">Email address</label>
+      <input type="email" id="email" name="Email" required>
+    </div>
+
+    <div class="field">
+      <label for="phone">Phone number</label>
+      <div class="hint">Optional — leave blank if you'd rather we reach you by email first.</div>
+      <input type="tel" id="phone" name="Phone">
+    </div>
+
+    <div class="field">
+      <label>Do you have prior sales experience?</label>
+      <fieldset class="radio-row">
+        <label><input type="radio" name="Sales Experience" value="None" required> None</label>
+        <label><input type="radio" name="Sales Experience" value="Some"> Some</label>
+        <label><input type="radio" name="Sales Experience" value="Experienced"> Experienced</label>
+      </fieldset>
+    </div>
+
+    <div class="field">
+      <label>Which of these describe you?</label>
+      <div class="hint">Check what's true. This matters more to us than any diploma.</div>
+      <fieldset class="radio-row">
+        <label><input type="checkbox" name="Self-Evaluation" value="Self-motivated"> Self-motivated</label>
+        <label><input type="checkbox" name="Self-Evaluation" value="Independent thinker"> Independent thinker</label>
+        <label><input type="checkbox" name="Self-Evaluation" value="Strong personal values"> Strong personal values</label>
+        <label><input type="checkbox" name="Self-Evaluation" value="Coachable"> Coachable — I take feedback well</label>
+        <label><input type="checkbox" name="Self-Evaluation" value="Persistent"> Persistent — I don't quit when it's hard</label>
+        <label><input type="checkbox" name="Self-Evaluation" value="Honest"> Honest, even when it costs me</label>
+      </fieldset>
+    </div>
+
+    <div class="field">
+      <label for="avail">When can you start?</label>
+      <input type="text" id="avail" name="Availability" placeholder="e.g. Immediately, 2 weeks notice" required>
+    </div>
+
+    <div class="field">
+      <label for="why">Why do you want this job?</label>
+      <div class="hint">A few sentences is plenty — we're more interested in attitude than polish.</div>
+      <textarea id="why" name="Why This Job" required></textarea>
+    </div>
+
+    <button type="submit">Submit Application</button>
+  </form>
+
+  <div class="foot">Forge Mode Incorporated</div>
+
+</div>
+</body>
+</html>
