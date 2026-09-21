@@ -111,6 +111,55 @@
     font-weight:600;
     color:var(--steel);
   }
+  .unlock{
+    margin-top:56px;
+    background:var(--steel);
+    color:#fff;
+    border-radius:10px;
+    padding:36px 28px;
+    text-align:center;
+  }
+  .unlock .kicker{
+    display:inline-block;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#f0c9b8;
+    margin-bottom:14px;
+  }
+  .unlock h2{
+    color:#fff;
+    font-size:26px;
+    letter-spacing:0;
+    text-transform:none;
+    margin:0 0 14px;
+  }
+  .unlock p{
+    color:#dfe3e6;
+    font-size:16px;
+    max-width:48ch;
+    margin:0 auto 24px;
+  }
+  .unlock .btn{
+    display:inline-block;
+    background:var(--ember);
+    color:#fff;
+    text-decoration:none;
+    font-size:18px;
+    font-weight:700;
+    padding:18px 34px;
+    border-radius:6px;
+  }
+  .unlock .btn:active{
+    background:var(--ember-dim);
+  }
+  .unlock .under{
+    font-size:13.5px;
+    color:#aeb8c1;
+    margin:20px auto 0;
+    max-width:46ch;
+  }
   .foot{
     text-align:center;
     font-size:13px;
@@ -119,7 +168,7 @@
   }
 </style>
 </head>
-<body>
+<body data-fm-page="partnering">
 <div class="wrap">
 
   <div class="mark">FORGE MODE</div>
@@ -174,8 +223,34 @@
     <p class="sign">— D, Forge Mode</p>
   </div>
 
+  <!-- =======================================================================
+       THE FINAL BUTTON — the last click of the application flow.
+       This is what was missing entirely: partnering.html had no outgoing link
+       of any kind, so the chain dead-ended right here.
+
+       Target: the training intake on the Forge Mode site. Two details that
+       were wrong in the brief and are corrected here:
+         - host is spelled "development", NOT "developement"
+           (the misspelling returns Vercel DEPLOYMENT_NOT_FOUND)
+         - the param is ?code=, NOT ?key= — that's what the intake reads
+
+       The key itself lives in ONE place: fm-key.js -> CFG.TRAINING_CODE.
+       The href is hardcoded below so the link still exists with JavaScript
+       disabled; fm-key.js rewrites it with this applicant's own key.
+       ======================================================================= -->
+  <div class="unlock">
+    <span class="kicker">Last step &mdash; and it's already yours</span>
+    <h2>Get your training material</h2>
+    <p>Ready? The button below carries your access key and opens the training intake on the Forge Mode site. No waiting on us, no approval step, no "we'll email you when it's ready."</p>
+    <a class="btn" data-fm-training-link
+       href="https://forge-mode-website-development.vercel.app/training?code=FM-APP-DEMO01"
+       target="_blank" rel="noopener">Unlock my training material &rarr;</a>
+    <p class="under">What opens: the 6-module sales training program, the call scripts and objection cheatsheet, and the daily checklist and pipeline sheet.</p>
+  </div>
+
   <div class="foot">Forge Mode Incorporated</div>
 
 </div>
+<script src="fm-key.js"></script>
 </body>
 </html>

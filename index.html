@@ -132,7 +132,7 @@
   }
 </style>
 </head>
-<body>
+<body data-fm-page="application">
 <div class="wrap">
 
   <header>
@@ -147,7 +147,26 @@
     <input type="hidden" name="_subject" value="New Sales Application — Forge Mode">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_next" value="https://YOUR-THANKYOU-PAGE-OR-SITE.com/thanks">
+
+    <!--
+      _next — where FormSubmit sends the applicant after submitting.
+      This used to be the placeholder "https://YOUR-THANKYOU-PAGE-OR-SITE.com/thanks",
+      which dumped every applicant on a domain that doesn't exist, so nobody ever
+      reached the Thanks page — let alone the training link at the end of the chain.
+
+      fm-key.js now rewrites this on load to <whatever domain this page is served
+      from>/thanks.html?code=<training key>, so it stays correct in local preview,
+      on Vercel, and on your real domain with no edits. FormSubmit requires a FULL
+      absolute URL here (https:// included), which is why it can't just be "thanks.html".
+
+      The value below is the no-JavaScript fallback — your live jobs domain.
+      Note "?code=" is appended by the script, so the key survives the redirect.
+    -->
+    <input type="hidden" name="_next" id="fm-next" value="https://forge-mode-jobs-dfvz.vercel.app/thanks.html">
+
+    <!-- Puts the applicant's training key in the FormSubmit email you receive,
+         so "found in your email" on the training page is actually true. -->
+    <input type="hidden" name="Training Access Key" id="fm-key-field" value="">
 
     <div class="field">
       <label for="name">Full name</label>
@@ -204,5 +223,6 @@
   <div class="foot">Forge Mode Incorporated</div>
 
 </div>
+<script src="fm-key.js"></script>
 </body>
 </html>
