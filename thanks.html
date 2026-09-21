@@ -103,6 +103,80 @@
   .next p{
     color:#dfe3e6;
   }
+  .keybox{
+    background:#fff;
+    border:1px solid var(--line);
+    border-left:3px solid var(--ember);
+    border-radius:8px;
+    padding:22px 24px;
+    margin-top:28px;
+  }
+  .keybox h2{
+    font-size:13px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ember-dim);
+    margin:0 0 10px;
+  }
+  .keybox p{
+    margin:0 0 14px;
+  }
+  .keyrow{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .keyval{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:19px;
+    font-weight:700;
+    letter-spacing:.06em;
+    color:var(--steel);
+    background:var(--paper);
+    border:1px dashed var(--steel);
+    border-radius:6px;
+    padding:9px 14px;
+  }
+  .copybtn{
+    width:auto;
+    margin:0;
+    background:none;
+    border:1px solid var(--steel);
+    color:var(--steel);
+    border-radius:6px;
+    padding:9px 16px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .copybtn:active{
+    background:rgba(44,58,74,.08);
+  }
+  .cta{
+    margin-top:36px;
+    text-align:center;
+  }
+  .cta .btn{
+    display:block;
+    background:var(--ember);
+    color:#fff;
+    text-decoration:none;
+    font-size:17px;
+    font-weight:600;
+    padding:17px 24px;
+    border-radius:6px;
+    margin-top:14px;
+  }
+  .cta .btn:active{
+    opacity:.9;
+  }
+  .cta .note{
+    font-size:13.5px;
+    color:#7a7d80;
+    margin:12px auto 0;
+    max-width:46ch;
+  }
   .foot{
     text-align:center;
     font-size:13px;
@@ -111,7 +185,7 @@
   }
 </style>
 </head>
-<body>
+<body data-fm-page="thanks">
 <div class="wrap">
 
   <span class="badge">APPLICATION RECEIVED</span>
@@ -155,8 +229,30 @@
     <p>We go through applications by hand — no bots filtering you out. If it looks like a fit, you'll hear from us directly to set up a conversation.</p>
   </div>
 
+  <!-- Shown only once fm-key.js has the real key for this applicant.
+       The training site's intake page says the stamp is "found in your email
+       and on the Thanks page" — this is that spot, and it's the manual
+       fallback if the ?code= ever gets stripped from the URL. -->
+  <div class="keybox" data-fm-code-wrap style="display:none">
+    <h2>Your training access key</h2>
+    <p>This is the key that unlocks your training material on the Forge Mode site. Hang onto it — it's in your confirmation email too, and you'll need it at the last step.</p>
+    <div class="keyrow">
+      <span class="keyval" data-fm-code>FM-APP-DEMO01</span>
+      <button type="button" class="copybtn" id="fm-copy">Copy key</button>
+    </div>
+  </div>
+
+  <!-- The hop that was missing: thanks.html was a dead end. Nothing on the
+       whole site linked to partnering.html, so applicants never reached the
+       page that carries the training button. -->
+  <div class="cta">
+    <a class="btn" id="fm-to-partnering" href="partnering.html">Meet who you're partnering with &rarr;</a>
+    <p class="note">One page. No pitch, no mission statement. Your training material unlocks at the end of it.</p>
+  </div>
+
   <div class="foot">Forge Mode Incorporated</div>
 
 </div>
+<script src="fm-key.js"></script>
 </body>
 </html>
