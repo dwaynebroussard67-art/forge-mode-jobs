@@ -160,6 +160,15 @@
     margin:20px auto 0;
     max-width:46ch;
   }
+  .unlock .under:last-child{
+    margin-top:12px;
+    color:#93a0aa;
+  }
+  .unlock .portallink{
+    color:#f0c9b8;
+    text-decoration:underline;
+    word-break:break-word;
+  }
   .foot{
     text-align:center;
     font-size:13px;
@@ -224,28 +233,47 @@
   </div>
 
   <!-- =======================================================================
-       THE FINAL BUTTON — the last click of the application flow.
-       This is what was missing entirely: partnering.html had no outgoing link
-       of any kind, so the chain dead-ended right here.
+       THE FINAL BUTTON — the last click of the application flow, and the
+       click that used to dead-end on an approval gate.
 
-       Target: the training intake on the Forge Mode site. Two details that
-       were wrong in the brief and are corrected here:
+       TARGET IS /intake, NOT /training. Both live on the Forge Mode site and
+       they are NOT the same door:
+
+         /intake?code=FM-APP-XXXXXX   PUBLIC TRAINING DOWNLOAD
+                                      Verifies the STAMP, not the person. A
+                                      stamp with the right shape opens it on
+                                      the spot — which is why finishing the
+                                      application can auto-approve the
+                                      download. THIS IS THE BUTTON'S TARGET.
+
+         /training                    STAFF LOGIN PORTAL. Username + password,
+                                      an account cut by hand. It is a login
+                                      FORM and ignores ?code= completely —
+                                      sending applicants there is what made
+                                      the flow look approval-gated.
+
+       Verified 2026-09-24: a stamp the training site had never seen
+       (FM-APP-Z9X8W7) unlocked /intake and served the full bundle.
+
+       Two more details that were wrong in the brief and are corrected here:
          - host is spelled "development", NOT "developement"
            (the misspelling returns Vercel DEPLOYMENT_NOT_FOUND)
          - the param is ?code=, NOT ?key= — that's what the intake reads
 
-       The key itself lives in ONE place: fm-key.js -> CFG.TRAINING_CODE.
-       The href is hardcoded below so the link still exists with JavaScript
-       disabled; fm-key.js rewrites it with this applicant's own key.
+       The stamp lives in ONE place: fm-key.js -> CFG.TRAINING_CODE (set it to
+       "" and every applicant mints their own, auto-approved). The href is
+       hardcoded below so the link still exists with JavaScript disabled;
+       fm-key.js rewrites it with this applicant's own stamp.
        ======================================================================= -->
   <div class="unlock">
-    <span class="kicker">Last step &mdash; and it's already yours</span>
+    <span class="kicker">Last step &mdash; already unlocked</span>
     <h2>Get your training material</h2>
-    <p>Ready? The button below carries your access key and opens the training intake on the Forge Mode site. No waiting on us, no approval step, no "we'll email you when it's ready."</p>
-    <a class="btn" data-fm-training-link
-       href="https://forge-mode-website-development.vercel.app/training?code=FM-APP-DEMO01"
-       target="_blank" rel="noopener">Unlock my training material &rarr;</a>
+    <p>You finished the application, so this is already yours. The button below carries your access key straight to the training download — no approval step, nobody signs off, nothing to wait on.</p>
+    <a class="btn" data-fm-intake-link
+       href="https://forge-mode-website-development.vercel.app/intake?code=FM-APP-DEMO01"
+       target="_blank" rel="noopener">Download my training material &rarr;</a>
     <p class="under">What opens: the 6-module sales training program, the call scripts and objection cheatsheet, and the daily checklist and pipeline sheet.</p>
+    <p class="under">Your staff login on the Forge Mode site comes later, once D has read your application — the download above doesn't wait on it. <a class="portallink" data-fm-portal-link href="https://forge-mode-website-development.vercel.app/training">forge-mode-website-development.vercel.app/training</a></p>
   </div>
 
   <div class="foot">Forge Mode Incorporated</div>
