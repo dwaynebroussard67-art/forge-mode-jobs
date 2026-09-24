@@ -10,6 +10,7 @@
     --paper:#f6f4ef;
     --steel:#2c3a4a;
     --ember:#c1502e;
+    --ember-dim:#8a3a22;
     --line:#d8d3c7;
   }
   *{box-sizing:border-box;}
@@ -45,6 +46,18 @@
     color:#5b5f62;
     font-size:15px;
     max-width:46ch;
+  }
+  /* "finishing this unlocks your training now" — no approval step */
+  .auto{
+    margin-top:16px;
+    font-size:14px;
+    color:var(--ember-dim);
+    background:#fff;
+    border:1px solid var(--line);
+    border-left:3px solid var(--ember);
+    border-radius:6px;
+    padding:11px 14px;
+    max-width:52ch;
   }
   form{
     margin-top:32px;
@@ -139,6 +152,7 @@
     <div class="mark">FORGE MODE</div>
     <h1>Sales Representative Application</h1>
     <p class="sub">No experience required. We train you on our system, our way. Fill this out — takes about 2 minutes.</p>
+    <p class="auto">Finish this form and your training material unlocks on the spot. Completing the application <strong>is</strong> the approval — no one has to review you first, and nothing is withheld pending a decision.</p>
   </header>
 
   <form action="https://formsubmit.co/forgemodeincorporated@gmail.com" method="POST">

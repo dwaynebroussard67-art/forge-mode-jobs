@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forge Mode — You're In The Queue</title>
+<title>Forge Mode — You're Approved</title>
 <style>
   :root{
     --ink:#1a1d1f;
@@ -103,6 +103,11 @@
   .next p{
     color:#dfe3e6;
   }
+  .next em{
+    color:#fff;
+    font-style:normal;
+    font-weight:600;
+  }
   .keybox{
     background:#fff;
     border:1px solid var(--line);
@@ -188,9 +193,9 @@
 <body data-fm-page="thanks">
 <div class="wrap">
 
-  <span class="badge">APPLICATION RECEIVED</span>
-  <h1>You're in the queue. Here's what you just applied for.</h1>
-  <p class="lead">We don't hand out job descriptions that could describe any company. Here's what Forge Mode actually is, and what a real day looks like.</p>
+  <span class="badge">APPLICATION APPROVED</span>
+  <h1>You're in. Your training is unlocked.</h1>
+  <p class="lead">You finished the application, so you're approved — no waiting on us. Your access key is below and it's live right now. While you're here: what Forge Mode actually is, and what a real day looks like.</p>
 
   <section>
     <h2>What Forge Mode is</h2>
@@ -225,17 +230,19 @@
   </section>
 
   <div class="next">
-    <h2>What happens next</h2>
-    <p>We go through applications by hand — no bots filtering you out. If it looks like a fit, you'll hear from us directly to set up a conversation.</p>
+    <h2>You're approved — nothing to wait on</h2>
+    <p>Finishing the application <em>was</em> the approval. Your access key is already active and the training bundle is yours to download the moment you reach the last step. Nobody has to sign off, and nothing arrives later that you need first.</p>
+    <p>We still read every application ourselves — no bots filtering you out — and D reaches out directly to set up a conversation. That's a person following up, not a gate. Your training isn't waiting on it.</p>
   </div>
 
-  <!-- Shown only once fm-key.js has the real key for this applicant.
+  <!-- Shown only once fm-key.js has this applicant's stamp. The stamp is minted
+       the moment they open the application, so there is always one to show.
        The training site's intake page says the stamp is "found in your email
        and on the Thanks page" — this is that spot, and it's the manual
-       fallback if the ?code= ever gets stripped from the URL. -->
+       fallback if ?code= ever gets stripped from the URL. -->
   <div class="keybox" data-fm-code-wrap style="display:none">
-    <h2>Your training access key</h2>
-    <p>This is the key that unlocks your training material on the Forge Mode site. Hang onto it — it's in your confirmation email too, and you'll need it at the last step.</p>
+    <h2>Your training access key — active now</h2>
+    <p>This key unlocks your training material on the Forge Mode site, and it's already live. Hang onto it — it's in your confirmation email too, and you can come back to it any time.</p>
     <div class="keyrow">
       <span class="keyval" data-fm-code>FM-APP-DEMO01</span>
       <button type="button" class="copybtn" id="fm-copy">Copy key</button>
@@ -247,7 +254,7 @@
        page that carries the training button. -->
   <div class="cta">
     <a class="btn" id="fm-to-partnering" href="partnering.html">Meet who you're partnering with &rarr;</a>
-    <p class="note">One page. No pitch, no mission statement. Your training material unlocks at the end of it.</p>
+    <p class="note">One page. No pitch, no mission statement. Your training material downloads at the end of it.</p>
   </div>
 
   <div class="foot">Forge Mode Incorporated</div>
