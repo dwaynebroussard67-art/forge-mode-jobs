@@ -100,6 +100,12 @@
        name attached on the training side.                                   */
     MINT_ENDPOINT: "",
 
+    /* ---- 7. OWNER NOTICE -------------------------------------------------
+       When an applicant clicks the final button, an email goes here saying
+       "someone is going to the training program" (via FormSubmit, the same
+       service the application form already uses). "" turns it off.         */
+    NOTIFY_ENDPOINT: "https://formsubmit.co/ajax/forgemodeincorporated@gmail.com",
+
     /* where the code is cached so it survives the page hops */
     STORAGE_KEY: "fm-training-code",
 
@@ -273,8 +279,44 @@
         /* re-assert on the way out, in case anything re-rendered the form */
         if (next) next.value = siblingUrl("thanks.html", code);
         if (keyField) keyField.value = code;
+        var st = storage();
+        var nm = document.getElementById("name");
+        var em = document.getElementById("email");
+        var ph = document.getElementById("phone");
+        if (st) {
+          try {
+            st.setItem("fm-applicant", JSON.stringify({
+              name: nm ? nm.value : "", email: em ? em.value : "", phone: ph ? ph.value : ""
+            }));
+          } catch (e) {}
+        }
       });
     }
+  }
+
+  /* Email the owner: "applicant is heading to training". Fire-and-forget;
+     never delays or blocks the applicant.                                  */
+  function notifyOwner(code) {
+    if (!CFG.NOTIFY_ENDPOINT) return;
+    var st = storage();
+    var who = {};
+    try { who = JSON.parse((st && st.getItem("fm-applicant")) || "{}") || {}; } catch (e) {}
+    var sentKey = "fm-notified-" + code;
+    try { if (st && st.getItem(sentKey)) return; if (st) st.setItem(sentKey, "1"); } catch (e) {}
+    var fd = new FormData();
+    fd.append("_subject", "Forge Mode: " + (who.name || "An applicant") + " is going to the training program");
+    fd.append("_template", "table");
+    fd.append("_captcha", "false");
+    fd.append("Notice", "An applicant finished the application + partnering walkthrough and was sent to the training download.");
+    fd.append("Name", who.name || "(not captured)");
+    fd.append("Email", who.email || "(not captured)");
+    fd.append("Phone", who.phone || "");
+    fd.append("Training Access Key", code);
+    fd.append("Time", new Date().toString());
+    try {
+      if (navigator.sendBeacon && navigator.sendBeacon(CFG.NOTIFY_ENDPOINT, fd)) return;
+    } catch (e) {}
+    try { fetch(CFG.NOTIFY_ENDPOINT, { method: "POST", body: fd, keepalive: true, mode: "no-cors" }); } catch (e) {}
   }
 
   /* ------------------------------------------------------ page: thanks.html
@@ -328,7 +370,11 @@
     var code = getCode();
 
     var btns = document.querySelectorAll("[data-fm-intake-link],[data-fm-training-link]");
-    for (var i = 0; i < btns.length; i++) btns[i].href = intakeUrl(code);
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].href = intakeUrl(code);
+      btns[i].removeAttribute("target"); /* same tab: no popup blockers */
+      btns[i].addEventListener("click", function () { notifyOwner(code); });
+    }
 
     /* secondary: the staff login, which is still hand-cut — labelled as
        "lands later" so nobody mistakes it for the download.                */
@@ -359,7 +405,8 @@
     intakeUrl: intakeUrl,
     portalUrl: portalUrl,
     trainingUrl: trainingUrl, /* back-compat -> intakeUrl */
-    siblingUrl: siblingUrl
+    siblingUrl: siblingUrl,
+    notifyOwner: notifyOwner
   };
 
   if (document.readyState === "loading") {
