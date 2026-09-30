@@ -249,6 +249,15 @@
     </div>
   </div>
 
+  <!-- Shown only when the application page reaches us with ?sent=0 — the
+       email backend (FormSubmit's 504s, a timeout, no network) failed, so
+       the owner never got the application. The applicant is still approved;
+       we just ask them to email their details + key in by hand. -->
+  <div class="keybox" id="fm-unsent" style="display:none;border-left-color:#b45309">
+    <h2>One more step — we couldn't deliver your application email</h2>
+    <p>Your training key above is still active and the download works. But our email service didn't confirm receipt of your application, so please <a href="mailto:forgemodeincorporated@gmail.com">send us a quick email</a> with your name, phone number and the key above so we know to expect you.</p>
+  </div>
+
   <!-- The hop that was missing: thanks.html was a dead end. Nothing on the
        whole site linked to partnering.html, so applicants never reached the
        page that carries the training button. -->

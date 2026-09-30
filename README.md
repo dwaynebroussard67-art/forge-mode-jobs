@@ -8,7 +8,33 @@ any static host (Vercel, GitHub Pages, S3, nginx).
 | `index.html` | Sales representative application form (posts to FormSubmit) |
 | `thanks.html` | "You're approved" — shows the applicant their training key |
 | `partnering.html` | "Who you're partnering with" — carries **the final button** |
-| `fm-key.js` | Training-key plumbing. **The only file you edit to change the link or the key.** |
+| `fm-key.js` | Training-key plumbing + form delivery. **The only file you edit to change the link, the key, or the email backend.** |
+
+## ⚠ If the form 504s: it's the email backend, not Vercel
+
+The application page has no server of its own — it hands the POST to a
+third-party form-to-email service. Up to 2026-09-29 that was **FormSubmit**
+(`formsubmit.co`), which has been down/flaky for weeks; every submit came back
+`504 Gateway Timeout` from *their* server and the applicant never reached
+`thanks.html`. Vercel was serving the pages fine the whole time.
+
+Fix (two minutes, once):
+
+1. Go to <https://web3forms.com>, enter `forgemodeincorporated@gmail.com`, and
+   they email you an access key.
+2. Open `fm-key.js`, find `FORM_ACCESS_KEY: ""` in the `CFG` block, paste the
+   key between the quotes. Commit, push, Vercel redeploys.
+
+That's it — the application email *and* the "applicant is heading to training"
+notice both switch to Web3Forms. Until a key is in place the code keeps trying
+FormSubmit.
+
+Either way, applicants are **never stranded any more**: `fm-key.js` takes over
+the submit, waits up to 12 s for the backend, and then sends the applicant to
+`thanks.html?code=…` regardless. If the backend failed, the URL also carries
+`&sent=0` and the Thanks page shows a box asking them to email you their name,
+phone and key (pre-filled `mailto:` link). The training download never depended
+on the email in the first place.
 
 ## Approval model: nobody approves the download
 
@@ -43,7 +69,7 @@ never waits on it**. Applicants train today; the login lands later.
 
 ```
 index.html                      applicant fills the form, mints FM-APP-XXXXXX
-   |  FormSubmit emails you, then redirects to _next?code=FM-APP-XXXXXX
+   |  fm-key.js emails you (Web3Forms / FormSubmit), then goes to thanks.html?code=FM-APP-XXXXXX
    v
 thanks.html                     "You're approved" — shows the stamp
    |
@@ -65,6 +91,9 @@ Open `fm-key.js` and edit the `CFG` block near the top:
   applicant mints their own stamp. Set a code here to give everyone the same
   one.
 - **`CODE_PARAM`** — the query param the intake page reads (`code`).
+- **`FORM_ACCESS_KEY`** — your Web3Forms access key. Empty = fall back to
+  FormSubmit (currently 504ing — see the box above).
+- **`NOTIFY_OWNER`** — `true`/`false`, the "heading to training" email.
 
 That's it. Every link on every page is generated from those values, so there is
 nowhere else to update and nothing to drift out of sync.
