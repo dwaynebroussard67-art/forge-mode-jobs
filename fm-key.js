@@ -118,7 +118,7 @@
        sent to thanks.html with their stamp (the download does not depend
        on the email — see the approval model above), and the Thanks page
        asks them to email you their key directly.                            */
-    FORM_ACCESS_KEY: "",
+    FORM_ACCESS_KEY: "e7dd4533-a24b-484b-83e5-c9da5aba3128",
     FORM_ENDPOINT: "https://api.web3forms.com/submit",
 
     /* legacy backend, used only while FORM_ACCESS_KEY is "" */
