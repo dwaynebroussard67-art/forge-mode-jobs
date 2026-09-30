@@ -155,26 +155,28 @@
     <p class="auto">Finish this form and your training material unlocks on the spot. Completing the application <strong>is</strong> the approval — no one has to review you first, and nothing is withheld pending a decision.</p>
   </header>
 
+  <!--
+    WHERE THE FORM GOES (2026-09-29)
+    The action below is FormSubmit, kept ONLY as the no-JavaScript fallback.
+    FormSubmit has been returning 504 Gateway Timeout on every submit, which
+    is why applicants never reached thanks.html. fm-key.js now takes over the
+    submit: it posts to Web3Forms when CFG.FORM_ACCESS_KEY is set (see
+    fm-key.js section 7), otherwise to FormSubmit's JSON endpoint — and in
+    BOTH cases sends the applicant on to thanks.html even if the backend is
+    down, because the training download does not depend on the email.
+  -->
   <form action="https://formsubmit.co/forgemodeincorporated@gmail.com" method="POST">
 
-    <!-- FormSubmit config -->
+    <!-- FormSubmit config (no-JS fallback only) -->
     <input type="hidden" name="_subject" value="New Sales Application — Forge Mode">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_captcha" value="false">
 
     <!--
-      _next — where FormSubmit sends the applicant after submitting.
-      This used to be the placeholder "https://YOUR-THANKYOU-PAGE-OR-SITE.com/thanks",
-      which dumped every applicant on a domain that doesn't exist, so nobody ever
-      reached the Thanks page — let alone the training link at the end of the chain.
-
-      fm-key.js now rewrites this on load to <whatever domain this page is served
-      from>/thanks.html?code=<training key>, so it stays correct in local preview,
-      on Vercel, and on your real domain with no edits. FormSubmit requires a FULL
-      absolute URL here (https:// included), which is why it can't just be "thanks.html".
-
-      The value below is the no-JavaScript fallback — your live jobs domain.
-      Note "?code=" is appended by the script, so the key survives the redirect.
+      _next — where FormSubmit sends the applicant after submitting (no-JS
+      fallback). fm-key.js rewrites this on load to <whatever domain this page
+      is served from>/thanks.html?code=<training key>, so it stays correct in
+      local preview, on Vercel, and on your real domain with no edits.
     -->
     <input type="hidden" name="_next" id="fm-next" value="https://forge-mode-jobs-dfvz.vercel.app/thanks.html">
 

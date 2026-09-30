@@ -100,11 +100,39 @@
        name attached on the training side.                                   */
     MINT_ENDPOINT: "",
 
-    /* ---- 7. OWNER NOTICE -------------------------------------------------
-       When an applicant clicks the final button, an email goes here saying
-       "someone is going to the training program" (via FormSubmit, the same
-       service the application form already uses). "" turns it off.         */
-    NOTIFY_ENDPOINT: "https://formsubmit.co/ajax/forgemodeincorporated@gmail.com",
+    /* ---- 7. WHERE THE APPLICATION EMAIL GOES  <<< READ THIS >>> ----------
+       Changed 2026-09-29. The form used to POST straight to FormSubmit
+       (formsubmit.co). FormSubmit has been down/flaky for weeks and every
+       submit came back "504 Gateway Timeout" — the applicant never reached
+       the Thanks page. Vercel and this repo were fine; the backend was not.
+
+       The form now goes through Web3Forms (free, no account). To turn it on:
+         1. Go to https://web3forms.com, enter forgemodeincorporated@gmail.com,
+            and they email you an access key (looks like a UUID).
+         2. Paste it into FORM_ACCESS_KEY below. Done — the application email
+            and the "heading to training" notice both use it.
+
+       Until a key is here the code falls back to FormSubmit, so nothing is
+       lost if that service comes back. Either way the applicant is NEVER
+       stranded: if the email backend fails or times out, they are still
+       sent to thanks.html with their stamp (the download does not depend
+       on the email — see the approval model above), and the Thanks page
+       asks them to email you their key directly.                            */
+    FORM_ACCESS_KEY: "e7dd4533-a24b-484b-83e5-c9da5aba3128",
+    FORM_ENDPOINT: "https://api.web3forms.com/submit",
+
+    /* legacy backend, used only while FORM_ACCESS_KEY is "" */
+    FORMSUBMIT_ENDPOINT: "https://formsubmit.co/ajax/forgemodeincorporated@gmail.com",
+
+    /* how long to wait for the email backend before sending the applicant
+       on anyway (milliseconds) */
+    FORM_TIMEOUT_MS: 12000,
+
+    /* ---- 8. OWNER NOTICE -------------------------------------------------
+       When an applicant clicks the final button, an email goes to you
+       saying "someone is going to the training program". Uses the same
+       backend as the form (section 7). Set to false to turn it off.        */
+    NOTIFY_OWNER: true,
 
     /* where the code is cached so it survives the page hops */
     STORAGE_KEY: "fm-training-code",
@@ -240,6 +268,70 @@
     return code ? withCode(abs, code) : abs;
   }
 
+  /* ----------------------------------------------------- email transport
+     One place that knows how to talk to whichever backend is configured.
+     Returns nothing; calls done(true|false). Never throws.                 */
+  function usingWeb3Forms() { return !!CFG.FORM_ACCESS_KEY; }
+
+  function formEndpoint() {
+    return usingWeb3Forms() ? CFG.FORM_ENDPOINT : CFG.FORMSUBMIT_ENDPOINT;
+  }
+
+  /* fields: plain object of label -> value. subject: email subject. */
+  function buildPayload(fields, subject) {
+    var fd = new FormData();
+    if (usingWeb3Forms()) {
+      fd.append("access_key", CFG.FORM_ACCESS_KEY);
+      fd.append("subject", subject);
+      fd.append("from_name", "Forge Mode Jobs");
+      if (fields.Email) fd.append("replyto", fields.Email);
+    } else {
+      fd.append("_subject", subject);
+      fd.append("_template", "table");
+      fd.append("_captcha", "false");
+    }
+    for (var k in fields) {
+      if (Object.prototype.hasOwnProperty.call(fields, k)) fd.append(k, fields[k]);
+    }
+    return fd;
+  }
+
+  function sendEmail(fields, subject, done) {
+    var settled = false;
+    var finish = function (ok) { if (settled) return; settled = true; done(!!ok); };
+    var timer = setTimeout(function () { finish(false); }, CFG.FORM_TIMEOUT_MS);
+    try {
+      if (!window.fetch) { clearTimeout(timer); finish(false); return; }
+      fetch(formEndpoint(), {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: buildPayload(fields, subject)
+      }).then(function (r) {
+        clearTimeout(timer);
+        if (!r.ok) { finish(false); return; }
+        return r.json().then(function (j) {
+          finish(j && (j.success === true || j.success === "true" || j.success === undefined));
+        }, function () { finish(true); });
+      }, function () { clearTimeout(timer); finish(false); });
+    } catch (e) { clearTimeout(timer); finish(false); }
+  }
+
+  /* Read every named control in the form into label -> value. Checkboxes
+     with the same name are joined with ", ".                               */
+  function collectFields(form) {
+    var out = {};
+    var els = form.elements;
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (!el.name || el.name.charAt(0) === "_" || el.disabled) continue;
+      if (/^(access_key|subject|from_name|redirect|replyto|botcheck)$/.test(el.name)) continue;
+      if (el.type === "submit" || el.type === "button") continue;
+      if ((el.type === "checkbox" || el.type === "radio") && !el.checked) continue;
+      if (out[el.name]) out[el.name] += ", " + el.value; else out[el.name] = el.value;
+    }
+    return out;
+  }
+
   /* ------------------------------------------------------- page: index.html
      Mint this applicant's stamp, put it in the _next redirect and in the
      hidden field, so it survives the FormSubmit hop AND lands in your
@@ -275,10 +367,34 @@
 
     var form = document.querySelector("form");
     if (form) {
-      form.addEventListener("submit", function () {
+      /* With a Web3Forms key the plain-HTML path (no JS after this point,
+         fetch missing, etc.) also goes to Web3Forms instead of FormSubmit. */
+      if (usingWeb3Forms()) {
+        form.action = CFG.FORM_ENDPOINT;
+        var add = function (name, value) {
+          var el = form.querySelector('input[name="' + name + '"]');
+          if (!el) {
+            el = document.createElement("input");
+            el.type = "hidden"; el.name = name; form.appendChild(el);
+          }
+          el.value = value;
+        };
+        add("access_key", CFG.FORM_ACCESS_KEY);
+        add("subject", "New Sales Application — Forge Mode");
+        add("from_name", "Forge Mode Jobs");
+        add("redirect", siblingUrl("thanks.html", code));
+      }
+
+      var busy = false;
+      form.addEventListener("submit", function (ev) {
+        if (busy) { ev.preventDefault(); return; }
         /* re-assert on the way out, in case anything re-rendered the form */
-        if (next) next.value = siblingUrl("thanks.html", code);
+        var thanks = siblingUrl("thanks.html", code);
+        if (next) next.value = thanks;
         if (keyField) keyField.value = code;
+        var redir = form.querySelector('input[name="redirect"]');
+        if (redir) redir.value = thanks;
+
         var st = storage();
         var nm = document.getElementById("name");
         var em = document.getElementById("email");
@@ -290,6 +406,25 @@
             }));
           } catch (e) {}
         }
+
+        /* Take over the submit so a dead backend (FormSubmit's 504s) can't
+           strand the applicant. Success or failure, they go to thanks.html;
+           on failure the URL carries &sent=0 so the page can ask them to
+           email their key in.                                              */
+        if (!window.fetch || !window.FormData) return; /* let the browser post */
+        ev.preventDefault();
+        busy = true;
+        var btn = form.querySelector('button[type="submit"]');
+        var label = btn ? btn.textContent : "";
+        if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+
+        var fields = collectFields(form);
+        fields["Training Access Key"] = code;
+        sendEmail(fields, "New Sales Application — Forge Mode", function (ok) {
+          try { if (st) st.setItem("fm-app-sent", ok ? "1" : "0"); } catch (e) {}
+          if (btn) { btn.disabled = false; btn.textContent = label; }
+          window.location.href = ok ? thanks : thanks + "&sent=0";
+        });
       });
     }
   }
@@ -297,26 +432,25 @@
   /* Email the owner: "applicant is heading to training". Fire-and-forget;
      never delays or blocks the applicant.                                  */
   function notifyOwner(code) {
-    if (!CFG.NOTIFY_ENDPOINT) return;
+    if (!CFG.NOTIFY_OWNER) return;
     var st = storage();
     var who = {};
     try { who = JSON.parse((st && st.getItem("fm-applicant")) || "{}") || {}; } catch (e) {}
     var sentKey = "fm-notified-" + code;
     try { if (st && st.getItem(sentKey)) return; if (st) st.setItem(sentKey, "1"); } catch (e) {}
-    var fd = new FormData();
-    fd.append("_subject", "Forge Mode: " + (who.name || "An applicant") + " is going to the training program");
-    fd.append("_template", "table");
-    fd.append("_captcha", "false");
-    fd.append("Notice", "An applicant finished the application + partnering walkthrough and was sent to the training download.");
-    fd.append("Name", who.name || "(not captured)");
-    fd.append("Email", who.email || "(not captured)");
-    fd.append("Phone", who.phone || "");
-    fd.append("Training Access Key", code);
-    fd.append("Time", new Date().toString());
+    var fields = {
+      "Notice": "An applicant finished the application + partnering walkthrough and was sent to the training download.",
+      "Name": who.name || "(not captured)",
+      "Email": who.email || "(not captured)",
+      "Phone": who.phone || "",
+      "Training Access Key": code,
+      "Time": new Date().toString()
+    };
+    var subject = "Forge Mode: " + (who.name || "An applicant") + " is going to the training program";
     try {
-      if (navigator.sendBeacon && navigator.sendBeacon(CFG.NOTIFY_ENDPOINT, fd)) return;
+      if (navigator.sendBeacon && navigator.sendBeacon(formEndpoint(), buildPayload(fields, subject))) return;
     } catch (e) {}
-    try { fetch(CFG.NOTIFY_ENDPOINT, { method: "POST", body: fd, keepalive: true, mode: "no-cors" }); } catch (e) {}
+    try { fetch(formEndpoint(), { method: "POST", body: buildPayload(fields, subject), keepalive: true, mode: "no-cors" }); } catch (e) {}
   }
 
   /* ------------------------------------------------------ page: thanks.html
@@ -324,6 +458,25 @@
      point the CTA at partnering.html.                                      */
   function initThanks() {
     var code = getCode();
+
+    /* The email backend failed or timed out on the application page. The
+       applicant is still approved (the stamp opens the download), but you
+       never got the email — so ask them to send it in by hand.            */
+    var unsent = readParam("sent") === "0";
+    var notice = document.getElementById("fm-unsent");
+    if (notice) {
+      notice.style.display = unsent ? "" : "none";
+      var mail = notice.querySelector("a[href^='mailto:']");
+      if (unsent && mail) {
+        var who = {};
+        try { who = JSON.parse((storage() && storage().getItem("fm-applicant")) || "{}") || {}; } catch (e) {}
+        mail.href = "mailto:forgemodeincorporated@gmail.com" +
+          "?subject=" + encodeURIComponent("Sales application — " + (who.name || "")) +
+          "&body=" + encodeURIComponent(
+            "Name: " + (who.name || "") + "\nEmail: " + (who.email || "") +
+            "\nPhone: " + (who.phone || "") + "\nTraining Access Key: " + code + "\n");
+      }
+    }
 
     var shown = document.querySelectorAll("[data-fm-code]");
     for (var i = 0; i < shown.length; i++) shown[i].textContent = code;
@@ -406,7 +559,8 @@
     portalUrl: portalUrl,
     trainingUrl: trainingUrl, /* back-compat -> intakeUrl */
     siblingUrl: siblingUrl,
-    notifyOwner: notifyOwner
+    notifyOwner: notifyOwner,
+    sendEmail: sendEmail
   };
 
   if (document.readyState === "loading") {
